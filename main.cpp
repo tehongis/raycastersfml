@@ -47,11 +47,14 @@ int main()
     sf::Sprite full;
     full.setTexture(texture);
 
+    sf::Sprite cursor;
+
     sf::Sprite sprite1;
     sf::Sprite sprite2;
 
     // create the window
     sf::RenderWindow window(sf::VideoMode(1024, 768), "My window");
+    window.setMouseCursorVisible(false);
 
     // activate the window
     window.setActive(true);
@@ -94,13 +97,12 @@ int main()
         float fElapsedSecs  = elapsed.asSeconds();
 
         sf::Vector2i localPosition = sf::Mouse::getPosition(window);
-
         int charid;
         charid = ((localPosition.y / 16) * 48)+ (localPosition.x / 16) ;
 
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            //std::cout << x << " : " << y << std::endl;
+            std::cout << charid << std::endl;
         }
 
 
@@ -112,6 +114,11 @@ int main()
 
 //        16,0  //wallpiece
 //        28,1  //playerchar
+
+        cursor.setTexture(texture);
+        cursor.setTextureRect(spriteid2texturelocation(691));
+        cursor.setOrigin(8.0f,8.0f);
+        cursor.setPosition( sf::Vector2f(localPosition));
 
         sprite1.setTexture(texture);
         sprite1.setTextureRect(spriteid2texturelocation(16));
@@ -144,7 +151,8 @@ int main()
         window.draw(full);
         window.draw(sprite1);
         window.draw(sprite2);
-
+        window.draw(cursor);
+ 
         // end the current frame (internally swaps the front and back buffers)
         window.display();
     }
