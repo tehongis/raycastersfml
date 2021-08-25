@@ -23,6 +23,7 @@ int main()
         std::cout << "Could not load music" << std::endl;
         return -1;
     }
+    music.setLoop(true);
     music.play();
 
     sf::SoundBuffer buffer;
@@ -119,6 +120,7 @@ int main()
         cursor.setTextureRect(spriteid2texturelocation(691));
         cursor.setOrigin(8.0f,8.0f);
         cursor.setPosition( sf::Vector2f(localPosition));
+        cursor.setScale(1.0f, 1.0f);
 
         sprite1.setTexture(texture);
         sprite1.setTextureRect(spriteid2texturelocation(16));
@@ -143,11 +145,17 @@ int main()
         sprite2.setPosition(sf::Vector2f(256,600));
         sprite2.setScale(8.0f, 8.0f);
 
+        sf::RectangleShape hilightbox = sf::RectangleShape(sf::Vector2f(18, 18));
+        hilightbox.setFillColor(sf::Color(80, 80, 0));
+        float boxx = localPosition.x & 0xfff0;
+        float boxy = localPosition.y & 0xfff0;
+        hilightbox.setPosition(boxx,boxy);
 
         // clear the buffers
         window.clear();
 
         // draw...
+        window.draw(hilightbox);
         window.draw(full);
         window.draw(sprite1);
         window.draw(sprite2);
