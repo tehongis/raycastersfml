@@ -7,6 +7,8 @@
 #include <iostream>
 #include <math.h>
 
+//https://www.raywenderlich.com/2736-trigonometry-for-game-programming-part-1-2
+
 class sprite_object {
   public:
     sf::Sprite image;
@@ -56,7 +58,7 @@ int map_data[] = { 17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,1
 17,17,0,0,0,17,17,17,17,0,0,0,0,0,0,0,0,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,
 17,17,0,0,0,17,17,17,0,0,0,0,0,0,0,0,0,17,17,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,
 17,17,0,0,0,17,17,17,0,0,0,0,0,0,0,0,0,4,17,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
-17,17,17,1049,17,17,17,17,0,0,0,0,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1053,17,
+17,17,17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1053,17,
 17,17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,17,17,0,0,0,102,0,0,0,0,0,0,17,17,17,
 17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,17,0,0,0,0,0,0,0,0,0,0,0,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,
 17,17,17,17,17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,
@@ -131,6 +133,7 @@ int main()
 {
 
     float playerRot = 0.0f;
+    sf::Vector2f playerLoc = {280.0f,400.0f};
 
     std::vector<sprite_object> spritelist = {};
 
@@ -161,9 +164,14 @@ int main()
     }
     sprite_sheet_texture.setSmooth(false);
 
-    sf::Sprite sprite_sheet;
-    sprite_sheet.setTexture(sprite_sheet_texture);
-    
+    sf::Sprite sheet_spr;
+    sheet_spr.setTexture(sprite_sheet_texture);
+
+    sf::Sprite player_spr;
+    player_spr.setTexture(sprite_sheet_texture);
+    player_spr.setTextureRect(sf::IntRect(16*28, 16*21, 16, 16));
+    player_spr.setOrigin ( 8,8 );
+
     // create the window
     sf::RenderWindow window(sf::VideoMode(1024, 768), "My window");
     window.setMouseCursorVisible(false);
@@ -174,7 +182,6 @@ int main()
     sf::Clock clock;
     while (window.isOpen())
     {
-
 
         // handle events
         sf::Event event;
@@ -199,18 +206,10 @@ int main()
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
-            playerRot = playerRot - (5.0f *  fElapsedSecs);
-            if (playerRot < 0 ) {
-                playerRot = playerRot + +360.0f;
-            }
         }
-
+        
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         {
-            playerRot = playerRot + (5.0f *  fElapsedSecs);
-            if (playerRot > 360.0f ) {
-                playerRot = playerRot - 360.0f;
-            }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
@@ -225,13 +224,28 @@ int main()
         sf::Vector2i localPosition = sf::Mouse::getPosition(window);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
-            std::cout << "Mouse button pressed\n." << std::endl;
+            //std::cout << "Mouse button pressed\n." << std::endl;
         }
 
         if (sf::Joystick::isConnected(0))
         {
-            float joyx = sf::Joystick::getAxisPosition(0, sf::Joystick::X);
+            float joyx = sf::Joystick::getAxisPosition(0, sf::Joystick::U);
             float joyy = sf::Joystick::getAxisPosition(0, sf::Joystick::Y);
+
+            //std::cout << joyx << " : " << joyy <<std::endl;
+
+            playerRot = playerRot + (joyx *  fElapsedSecs);
+            
+            if (playerRot < 0 ) {
+                playerRot = playerRot + +360.0f;
+            }
+            if (playerRot > 360.0f ) {
+                playerRot = playerRot - 360.0f;
+            }
+
+            playerLoc.x = playerLoc.x - ( sin(playerRot * M_PI / 180.0f) * fElapsedSecs * joyy);
+            playerLoc.y = playerLoc.y + ( cos(playerRot * M_PI / 180.0f) * fElapsedSecs * joyy);
+
         }
 
 
@@ -239,13 +253,15 @@ int main()
 
 
         // update all locations and rotations
-        sprite_sheet.setRotation(playerRot);
+        player_spr.setPosition(playerLoc);
+        player_spr.setRotation(playerRot);
 
         // clear the buffers
         window.clear();
 
         //draw sprites;
-        window.draw(sprite_sheet);
+        window.draw(sheet_spr);
+        window.draw(player_spr);
 
          // end the current frame (internally swaps the front and back buffers)
         window.display();
