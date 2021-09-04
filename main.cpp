@@ -172,6 +172,11 @@ int main()
     player_spr.setTextureRect(sf::IntRect(16*28, 16*21, 16, 16));
     player_spr.setOrigin ( 8,8 );
 
+    sf::Sprite wall_spr;
+    wall_spr.setTexture(sprite_sheet_texture);
+    wall_spr.setTextureRect(sf::IntRect(16*16, 16*0, 16, 16));
+    wall_spr.setOrigin ( 8,8 );
+
     // create the window
     sf::RenderWindow window(sf::VideoMode(1024, 768), "My window");
     window.setMouseCursorVisible(false);
@@ -204,22 +209,11 @@ int main()
         sf::Time elapsed = clock.restart();
         float fElapsedSecs  = elapsed.asSeconds();
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
         {
+            window.close();
         }
         
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        {
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        {
-        }
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        {
-        }
-
 
         sf::Vector2i localPosition = sf::Mouse::getPosition(window);
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -253,14 +247,25 @@ int main()
 
 
         // update all locations and rotations
-        player_spr.setPosition(playerLoc);
+        sf::Vector2f locOffset = playerLoc;
+        locOffset.x = locOffset.x + 32;
+        locOffset.y = locOffset.y + 32;
+        player_spr.setPosition(locOffset);
         player_spr.setRotation(playerRot);
 
         // clear the buffers
         window.clear();
 
-        //draw sprites;
-        window.draw(sheet_spr);
+        // draw sprites;
+        //window.draw(sheet_spr);
+        for (int y = 0; y < 45;y++) {
+            for (int x = 0; x < 50;x++) {
+                if (map_data[y*50+x] != 0) {
+                    wall_spr.setPosition(32+x*16,32+y*16);
+                    window.draw(wall_spr);
+                }
+            }
+        }
         window.draw(player_spr);
 
          // end the current frame (internally swaps the front and back buffers)
